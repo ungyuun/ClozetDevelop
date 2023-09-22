@@ -1,11 +1,23 @@
 import { Form, Row, Col,Button,Image,InputGroup} from 'react-bootstrap';
-
-
+import { useMemo, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 function ProductDetail({register,onDeleteClick,id}){
+
+    const [options, setOptions] = useState([]);   //물품 옵션 설정 -->색상/사이즈/가격/개수/
+
+    const addOption = () => {
+        setOptions([ ...options,{ componentId: id,optionId: uuidv4()}]);     
+        console.log(options);
+    };  
+
+    const optionDelete = (id)=>{
+        console.log(options)
+        const updatedOptions = options.filter((option) => option.id !== id );
+        setOptions(updatedOptions);
+    }
     return(
-        <div id={id} className='mt-5'>
-            
-            <Row>
+        
+            <Row id={id} className='mt-5'>
                 <Col md="4">
                     <Image className="img-container" src="/images/1dddd1525f804ef1f7da7a6c41bd871a.jpg" rounded />
                 </Col>                                
@@ -54,27 +66,52 @@ function ProductDetail({register,onDeleteClick,id}){
                         </InputGroup>
                     </Col>
                     <Col md="2">
-                        <Button  type="primary" >저장</Button>
+                        <Button  onClick={addOption} >저장</Button>
                     </Col>
                     <Row className='mt-1'>
-                        <InputGroup >
-                            <Form.Control
-                                placeholder="Recipient's username"
-                                disabled
-                            />
-                            <Button variant="danger" id="button-addon2">
-                                -
-                            </Button>
-                        </InputGroup>
+                        <OptionList options={options} register={register} onDeleteClick={optionDelete}/>
+                        
                     </Row>
                 </Row>
                 </Col>
                 <Col md="1">
+                    
                     <Button variant="danger" id="button-addon2" onClick={()=>onDeleteClick(id)}>{id}</Button>
                 </Col>
             </Row>
-        </div>
+        
+    );
+};
+const ProductDetailList = ({components,register,onDeleteClick}) =>{
+    return(
+        <>
+        {components.map((component, idx)=>{
+            return(
+                <ProductDetail key={idx} id={component.id} register={register} onDeleteClick={onDeleteClick} />
+            );
+        })} 
+      </> 
+    );
+}
+const OptionList = ({options,register,onDeleteClick}) =>{
+    return(
+        <>
+        {options.map((option, idx)=>{
+            return(
+                <InputGroup id={option.id} className='mt-1'>
+                    <Form.Control
+                        placeholder="Recipient's username"
+                        disabled
+                    />
+                    <Button variant="danger" onClick={() => onDeleteClick(option.id)}>
+                        -
+                    </Button>
+                </InputGroup>
+                
+            );
+        })} 
+      </> 
     );
 }
 
-export default ProductDetail;
+export default ProductDetailList;

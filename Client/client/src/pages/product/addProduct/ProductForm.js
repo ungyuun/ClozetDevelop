@@ -1,8 +1,8 @@
 import { Form, Row, Col,Button} from 'react-bootstrap';
 import {useForm} from "react-hook-form";
-
+import { v4 as uuidv4 } from 'uuid';
 import Title from './Title';
-import ProductDetail from './ProductDetail';
+import ProductDetailList from './ProductDetail';
 import Editor from './Editor';
 import { useMemo, useRef, useState } from 'react';
 
@@ -10,8 +10,8 @@ function ProductForm(){
 
     const { register, handleSubmit, control } = useForm();
     const [editorData, setEditorData] = useState('');
-    const [components, setComponents] = useState([]);
-
+    const [components, setComponents] = useState([]);   //물품 옵션 설정 -->색상/사이즈/가격/개수/
+    const [options, setOptions] = useState([]);         //물품 옵션 설정 -->색상/사이즈/가격/개수/
     const onSubmit = (data) => {
         const formData = {
             formData: data,
@@ -24,27 +24,25 @@ function ProductForm(){
         setEditorData(newData);
       };
 
-    const nextId = useRef(0);
-
     const addComponent = () => {
-    // 현재 컴포넌트 배열에 새로운 컴포넌트를 추가합니다.
-        setComponents((components) => [...components, <ProductDetail key={nextId.current} id={nextId.current} register={register} onDeleteClick={handleDelete}/>]);
-        nextId.current += 1;
-        // console.log(components);       
+        setComponents([ ...components,{ id: uuidv4()}]);     
     };  
 
     const handleDelete = (id)=>{
-        console.log("org");
-        console.log(components)
-        const updatedComponents = components.filter((component) => {
-            // console.log(component.props.id);
-            console.log(component);
-            return component.id !== id;
-        });
-        nextId.current -= 1;
-        console.log("up");
-        console.log(updatedComponents)
+        console.log(components);
+        console.log(id);
+        const updatedComponents = components.filter((component) => component.id !== id );
         setComponents(updatedComponents);
+    }
+    const addOption = () => {
+        setOptions([ ...options,{ optionId: uuidv4()}]);     
+        console.log(options);
+    };  
+
+    const optionDelete = (id)=>{
+        console.log(options)
+        const updatedOptions = options.filter((option) => option.id !== id );
+        setOptions(updatedOptions);
     }
     return(
 
@@ -54,11 +52,10 @@ function ProductForm(){
             <div className='mt-5'>
                 <h1>상품 정보추가</h1>
                 <Button variant="primary" id="button-addon2" onClick={addComponent}>상품 상세 추가</Button>
-                {components.map((component, index) => (
-                    <div key={index}>{component}</div>
-                ))}
+                <ProductDetailList components={components} register={register} onDeleteClick={handleDelete} />
+                
+        
             </div>
-            {/* <ProductDetail register={register} /> */}
         </Form>
     
     );
