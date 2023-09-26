@@ -26,7 +26,7 @@ function Title({register}){
                     </Form.Select>
                     </Col>
                     <Col>
-                        <Button>저장</Button>
+                        <Button type="submit">저장</Button>
                     </Col>
                 </Row>
             

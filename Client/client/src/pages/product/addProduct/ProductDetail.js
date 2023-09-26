@@ -1,23 +1,64 @@
 import { Form, Row, Col,Button,Image,InputGroup} from 'react-bootstrap';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo,useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-function ProductDetail({register,onDeleteClick,id}){
+function ProductDetail({register,products,setProducts,onDeleteClick}){
 
-    const [options, setOptions] = useState([]);   //물품 옵션 설정 -->색상/사이즈/가격/개수/
+    const [color,setColor]=useState(['']);
+    const [size,setSize]=useState(['']);
+    const [amount,setAmount] = useState([0]);
+    const [price,setPrice] = useState([0]);
 
-    const addOption = () => {
-        setOptions([ ...options,{ componentId: id,optionId: uuidv4()}]);     
-        console.log(options);
+    const amountIncrease = (index) =>{
+        const newAmount = [...amount];
+        newAmount[index] +=1000;
+        setAmount(newAmount);
+    }
+    const amountDecrease=(index)=>{
+        if (amount[index] > 1000) {
+            const newAmount = [...amount];
+            newAmount[index] -= 1000;
+            setAmount(newAmount);
+          } else {
+            const newAmount = [...amount];
+            newAmount[index] = 0;
+            setAmount(newAmount);
+          }
+    }
+
+    const priceIncrease = (index) =>{
+        const newPrice = [...price];
+        newPrice[index] +=1000;
+        setPrice(newPrice);
+    }
+    const priceDecrease=(index)=>{
+        if (price[index] > 1000) {
+            const newPrice = [...price];
+            newPrice[index] -= 1000;
+            setPrice(newPrice);
+          } else {
+            const newPrice = [...price];
+            newPrice[index] = 0;
+            setPrice(newPrice);
+          }
+    }
+
+    const addOption = (productId,index) => {
+        console.log(`id : ${productId}`)
+        console.log(`index : ${index}`)
+        setProducts([ ...products,{type:'option',parentId:productId,color:color[index],size:size[index],price:price[index],amount:amount[index]}]);     
+        // const newAmount = [...amount, 0]; // 0으로 초기화된 amount 배열에 새 항목 추가
+        // const newPrice = [...price, 0]; // 0으로 초기화된 price 배열에 새 항목 추가
+        // setAmount(newAmount);
+        // setPrice(newPrice);
+        
     };  
 
-    const optionDelete = (id)=>{
-        console.log(options)
-        const updatedOptions = options.filter((option) => option.id !== id );
-        setOptions(updatedOptions);
-    }
     return(
-        
-            <Row id={id} className='mt-5'>
+        <>
+        {products.filter((c)=>!c.parentId).map((product, index)=>{
+            return(
+                
+                <Row id={product.id} className='mt-5'>
                 <Col md="4">
                     <Image className="img-container" src="/images/1dddd1525f804ef1f7da7a6c41bd871a.jpg" rounded />
                 </Col>                                
@@ -27,14 +68,25 @@ function ProductDetail({register,onDeleteClick,id}){
                         <Form.Group controlId="exampleForm.ControlInput1">
                             <Form.Control type="text" 
                                         placeholder="색상 입력" 
-                                        {...register('title')}
+                                        onChange={(e)=>{
+                                            const newValue = e.target.value
+                                            const newColor = [...color]
+                                            newColor[index]=newValue
+                                            setColor(newColor)
+                                         }}
                             />
                         </Form.Group>
                     </Col>
                     <Col md="2">
                     <Form.Select className='p-2' 
                                  aria-label="카테고리 입력"
-                                 {...register('category')}
+                                 onChange={(e)=>{
+                                    const newValue = e.target.value
+                                    const newSize = [...size]
+                                    newSize[index]=newValue
+                                    setSize(newSize)
+                                 }}
+                                 
                     >
                         <option>사이즈</option>
                         <option value="S">S</option>
@@ -49,69 +101,66 @@ function ProductDetail({register,onDeleteClick,id}){
                         <InputGroup>
                             <Form.Control
                             placeholder="가격"
-                            aria-label="Recipient's username with two button addons"
+                            value={price[index]}
+                            
+                            onChange={(e)=>{
+                                const newValue = parseInt(e.target.value)
+                                const newPrice = [...price]
+                                newPrice[index] = newValue // 배열에 정수 값을 할당
+                                setPrice(newPrice)
+                            }}
                             />
-                            <Button variant="primary">+</Button>
-                            <Button variant="danger">-</Button>
+                            <Button variant="primary" onClick={()=>priceIncrease(index)}>+</Button>
+                            <Button variant="danger" onClick={()=>priceDecrease(index)}>-</Button>
+                            
                         </InputGroup>
                     </Col>
                     <Col md="3">
                         <InputGroup>
                             <Form.Control
                             placeholder="개수"
-                            aria-label="Recipient's username with two button addons"
+                            value={amount[index]}
+                            onChange={(e)=>{
+                                const newValue = parseInt(e.target.value)
+                                const newAmount = [...amount]
+                                newAmount[index] = newValue // 배열에 정수 값을 할당
+                                setAmount(newAmount)
+                            }}
                             />
-                            <Button variant="primary">+</Button>
-                            <Button variant="danger">-</Button>
+                            <Button variant="primary" onClick={()=>amountIncrease(index)}>+</Button>
+                            <Button variant="danger" onClick={()=>amountDecrease(index)}>-</Button>         
+                            
                         </InputGroup>
                     </Col>
                     <Col md="2">
-                        <Button  onClick={addOption} >저장</Button>
+                        <Button  onClick={()=>addOption(product.id,index)} >저장</Button>
                     </Col>
                     <Row className='mt-1'>
-                        <OptionList options={options} register={register} onDeleteClick={optionDelete}/>
-                        
+                        {products.filter((c)=> c.parentId===product.id).map((option)=>(
+                            // <OptionList options={option} register={register} onDeleteClick={optionDelete}/>
+                            <InputGroup key={option.id} id={option.id} register={register} className='mt-1'>
+                                    <Form.Control
+                                    placeholder={`${option.color}/${option.size}/${option.price}/${option.amount}`}
+                                    disabled
+                                />
+                                <Button variant="danger" onClick={() => onDeleteClick(option.id)}>
+                                    -
+                                </Button>
+                            </InputGroup>
+                        ))}
                     </Row>
                 </Row>
                 </Col>
                 <Col md="1">
                     
-                    <Button variant="danger" id="button-addon2" onClick={()=>onDeleteClick(id)}>{id}</Button>
+                    <Button variant="danger" id="button-addon2" onClick={()=>onDeleteClick(product.id)}>삭제</Button>
                 </Col>
             </Row>
-        
+            );
+        })} 
+            
+        </>
     );
 };
-const ProductDetailList = ({components,register,onDeleteClick}) =>{
-    return(
-        <>
-        {components.map((component, idx)=>{
-            return(
-                <ProductDetail key={idx} id={component.id} register={register} onDeleteClick={onDeleteClick} />
-            );
-        })} 
-      </> 
-    );
-}
-const OptionList = ({options,register,onDeleteClick}) =>{
-    return(
-        <>
-        {options.map((option, idx)=>{
-            return(
-                <InputGroup id={option.id} className='mt-1'>
-                    <Form.Control
-                        placeholder="Recipient's username"
-                        disabled
-                    />
-                    <Button variant="danger" onClick={() => onDeleteClick(option.id)}>
-                        -
-                    </Button>
-                </InputGroup>
-                
-            );
-        })} 
-      </> 
-    );
-}
 
-export default ProductDetailList;
+export default ProductDetail;

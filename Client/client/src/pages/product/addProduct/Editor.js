@@ -1,13 +1,14 @@
 import React, { useEffect,useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { AutoImage } from '@ckeditor/ckeditor5-image';
 import axios from 'axios';
 import "../../../styles/product.css"; 
 
 function Editor({ editorData, onChange,setDesc,desc,setImage}){
 
   const [flag,setFlag] = useState(false);
-  const imgLink = "http://localhost:3306/images/"
+  const imgLink = "http://localhost:3000/images/"
 
   function customUploadAdapter(loader){
     return{
@@ -15,23 +16,27 @@ function Editor({ editorData, onChange,setDesc,desc,setImage}){
         return new Promise ((resolve,reject)=>{
           const data = new FormData();
           loader.file.then((file)=>{
-            data.append("name",file.name);
+            data.append("objectName",file.name);
             data.append("file",file);
-
-            axios.post('주소',data)
+            console.log(file)
+            axios.post('http://localhost:8081/product/img',data)
               .then((res)=>{
+                console.log(res.data);
                 if(!flag){
                   setFlag(true);
-                  setImage(res.data.filename);
+                  setImage(res.data);
+                  console.log(` post 들어옴 ${res.data}`);
                 }
                 resolve({
-                  default: `${imgLink}/${res.data.filename}`
+                  default: `${imgLink}/${res.data}`
                 });
               })
               .catch((err)=>reject(err));
             
           })
+          console.log(data);
         })
+        
       }
     }
   }
@@ -48,7 +53,8 @@ function Editor({ editorData, onChange,setDesc,desc,setImage}){
                 <CKEditor
                     editor={ ClassicEditor }
                     config={{ // (4)
-                      extraPlugins: [uploadPlugin]
+                      extraPlugins: [uploadPlugin],
+                      plugins:[AutoImage]
                   }}
                     data={editorData}
                     onReady={ (editor) => {
