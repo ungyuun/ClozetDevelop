@@ -1,11 +1,10 @@
 import React, { useEffect,useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import { AutoImage } from '@ckeditor/ckeditor5-image';
 import axios from 'axios';
 import "../../../styles/product.css"; 
 
-function Editor({ editorData, onChange,setDesc,desc,setImage}){
+function Editor({ editorData, onChange,setDesc,desc}){
 
   const [flag,setFlag] = useState(false);
   const imgLink = "http://localhost:3000/images/"
@@ -18,17 +17,20 @@ function Editor({ editorData, onChange,setDesc,desc,setImage}){
           loader.file.then((file)=>{
             data.append("objectName",file.name);
             data.append("file",file);
+            console.log(data)
             console.log(file)
             axios.post('http://localhost:8081/product/img',data)
               .then((res)=>{
+                console.log(`레스 ${res}`);
                 console.log(res.data);
-                if(!flag){
-                  setFlag(true);
-                  setImage(res.data);
-                  console.log(` post 들어옴 ${res.data}`);
-                }
+                
+                // setContext(res.data);
+                onChange(res.data);
+                console.log(` post 들어옴 ${res.data}`);
+                
                 resolve({
-                  default: `${imgLink}/${res.data}`
+                  // default: `${imgLink}/${res.data}`
+                  default : res.data
                 });
               })
               .catch((err)=>reject(err));
@@ -53,8 +55,7 @@ function Editor({ editorData, onChange,setDesc,desc,setImage}){
                 <CKEditor
                     editor={ ClassicEditor }
                     config={{ // (4)
-                      extraPlugins: [uploadPlugin],
-                      plugins:[AutoImage]
+                      extraPlugins: [uploadPlugin]
                   }}
                     data={editorData}
                     onReady={ (editor) => {

@@ -26,7 +26,7 @@ function ProductForm(){
       };
 
     const addProduct = () => {
-        setProducts([ ...products,{ id: count, parentId:''}]);  
+        setProducts([ ...products,{ type: "parent", id: count, parentId:''}]);  
         setCount(count+1);
         console.log(products);   
     };  

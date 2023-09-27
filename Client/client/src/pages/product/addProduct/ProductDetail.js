@@ -7,16 +7,38 @@ function ProductDetail({register,products,setProducts,onDeleteClick}){
     const [size,setSize]=useState(['']);
     const [amount,setAmount] = useState([0]);
     const [price,setPrice] = useState([0]);
+    const [imgFile, setImgFile] = useState([]);
+    const imgRef = useRef();
+
+    // 이미지 업로드 input의 onChange
+    const saveImgFile = (parentId) => {
+        const file = imgRef.current ? imgRef.current.files[0] : null;
+        
+        const parentProducts = products.filter(product => product.id === parentId);
+        console.log(parentProducts);
+        console.log("hoi");
+        const reader = new FileReader();
+        if (file) {
+            reader.readAsDataURL(file);
+          }
+        reader.onloadend = () => {
+            const parentProducts = products.filter(product => product.id === parentId);
+            console.log(parentProducts);
+            setProducts({type:"parent",id : parentProducts.id,parentId:parentProducts.parentId,optionImg:reader.result})
+           
+            setImgFile([...imgFile,reader.result]);
+        };
+    };
 
     const amountIncrease = (index) =>{
         const newAmount = [...amount];
-        newAmount[index] +=1000;
+        newAmount[index] +=10;
         setAmount(newAmount);
     }
     const amountDecrease=(index)=>{
-        if (amount[index] > 1000) {
+        if (amount[index] > 10) {
             const newAmount = [...amount];
-            newAmount[index] -= 1000;
+            newAmount[index] -= 10;
             setAmount(newAmount);
           } else {
             const newAmount = [...amount];
@@ -46,10 +68,6 @@ function ProductDetail({register,products,setProducts,onDeleteClick}){
         console.log(`id : ${productId}`)
         console.log(`index : ${index}`)
         setProducts([ ...products,{type:'option',parentId:productId,color:color[index],size:size[index],price:price[index],amount:amount[index]}]);     
-        // const newAmount = [...amount, 0]; // 0으로 초기화된 amount 배열에 새 항목 추가
-        // const newPrice = [...price, 0]; // 0으로 초기화된 price 배열에 새 항목 추가
-        // setAmount(newAmount);
-        // setPrice(newPrice);
         
     };  
 
@@ -59,8 +77,12 @@ function ProductDetail({register,products,setProducts,onDeleteClick}){
             return(
                 
                 <Row id={product.id} className='mt-5'>
-                <Col md="4">
-                    <Image className="img-container" src="/images/1dddd1525f804ef1f7da7a6c41bd871a.jpg" rounded />
+                <Col md="4" >
+                <img className="profile-image-container" src={imgFile[index] ? imgFile[index] :`/images/image_icon-icons.com_50366.png`} alt="프로필 이미지"/>
+
+                
+                <input type="file" className="input-image" key={product.id} accept="image/*" id="profileImg" onChange={saveImgFile(product.id)} ref={imgRef}/>
+                    {/* <Image className="img-container" src="/images/image_icon-icons.com_50366.png" rounded /> */}
                 </Col>                                
                 <Col md="7">
                 <Row>
