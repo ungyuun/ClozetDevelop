@@ -1,6 +1,9 @@
 import { Form, Row, Col,Button,Image,InputGroup} from 'react-bootstrap';
 import { useMemo,useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import ImageUpload from '../../common/ImageUpload'
+
+
 function ProductDetail({register,products,setProducts,onDeleteClick}){
 
     const [color,setColor]=useState(['']);
@@ -10,25 +13,6 @@ function ProductDetail({register,products,setProducts,onDeleteClick}){
     const [imgFile, setImgFile] = useState([]);
     const imgRef = useRef();
 
-    // 이미지 업로드 input의 onChange
-    const saveImgFile = (parentId) => {
-        const file = imgRef.current ? imgRef.current.files[0] : null;
-        
-        const parentProducts = products.filter(product => product.id === parentId);
-        console.log(parentProducts);
-        console.log("hoi");
-        const reader = new FileReader();
-        if (file) {
-            reader.readAsDataURL(file);
-          }
-        reader.onloadend = () => {
-            const parentProducts = products.filter(product => product.id === parentId);
-            console.log(parentProducts);
-            setProducts({type:"parent",id : parentProducts.id,parentId:parentProducts.parentId,optionImg:reader.result})
-           
-            setImgFile([...imgFile,reader.result]);
-        };
-    };
 
     const amountIncrease = (index) =>{
         const newAmount = [...amount];
@@ -73,16 +57,17 @@ function ProductDetail({register,products,setProducts,onDeleteClick}){
 
     return(
         <>
-        {products.filter((c)=>!c.parentId).map((product, index)=>{
+        {products.filter((c)=>c.type ==='parent').map((product, index)=>{
             return(
                 
                 <Row id={product.id} className='mt-5'>
                 <Col md="4" >
-                <img className="profile-image-container" src={imgFile[index] ? imgFile[index] :`/images/image_icon-icons.com_50366.png`} alt="프로필 이미지"/>
+                {/* <img className="profile-image-container" src={imgFile[index] ? imgFile[index] :`/images/image_icon-icons.com_50366.png`} alt="프로필 이미지"/> */}
+
+                <ImageUpload product={products} productId={product.id} setProducts={setProducts}index={index}/>
 
                 
-                <input type="file" className="input-image" key={product.id} accept="image/*" id="profileImg" onChange={saveImgFile(product.id)} ref={imgRef}/>
-                    {/* <Image className="img-container" src="/images/image_icon-icons.com_50366.png" rounded /> */}
+                 
                 </Col>                                
                 <Col md="7">
                 <Row>

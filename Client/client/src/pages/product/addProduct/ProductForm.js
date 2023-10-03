@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Title from './Title';
 import ProductDetail from './ProductDetail';
 import Editor from './Editor';
+import axios from 'axios';
 import { useMemo, useRef, useState } from 'react';
 
 function ProductForm(){
@@ -14,11 +15,29 @@ function ProductForm(){
     const [products, setProducts] = useState([]);   //물품 등록
     const onSubmit = (data) => {                        // 물품 json 변환
         const formData = {
-            header: data,
-            body: editorData,
-            product: products
+            // header: data,
+            title: data.title,
+            category: data.category,
+            content: editorData,
+            options: products
           };
+          console.log(JSON.stringify(formData));
           alert(JSON.stringify(formData));
+          axios.post("http://localhost:8081/product/newproduct",formData,{
+            headers: {"Content-Type": "application/json",},
+          })
+          // .then((response) => {
+          //   console.log(`response : ${response}`);
+          // })
+          .then(() => {
+            console.log("요청 성공");
+            // 성공 시 수행할 작업
+          })
+          .catch((error) => {
+            console.log(`error : ${error}`);
+          })
+      
+
     };
 
     const handleEditorChange = (newData) => {
