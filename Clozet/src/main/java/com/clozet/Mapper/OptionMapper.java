@@ -10,14 +10,12 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
-public interface ProductMapper{
-    ProductMapper INSTANCE = Mappers.getMapper( ProductMapper.class );
+public interface OptionMapper{
+    OptionMapper INSTANCE = Mappers.getMapper( OptionMapper.class );
+    OptionDto toDto(Option option);
+    @Mapping(source = "parentNo", target = "product.prodNo")
+    Option toEntity(OptionDto optionDto);
 
-    @Mapping(source="prodNo",target="prodNo")
-    ProductDto toDtoProdNo(Product product);
-
-    ProductDto toDto(Product product);
-
-    Product toEntity(ProductDto productDto);
-    Option map(OptionDto value);
+//    @Mapping(source="product.prodNo",target="parentNo")
+//    OptionDto toDtoProdNo(Option option);
 }

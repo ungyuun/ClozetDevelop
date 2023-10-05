@@ -1,13 +1,11 @@
 package com.clozet.model.entity;
 
 
-import com.clozet.model.dto.OptionsDto;
+import com.clozet.model.dto.ImageDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -18,29 +16,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-
+@Setter
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name="product")
+@EntityListeners(AuditingEntityListener.class)
 public class Product {
-
-
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long prodNo;
     private String title;
     private String category;
+    @Column(length = 1000)
     private String content;
-    @JsonIgnore //JSON 변환시 무한 루프 방지용
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
-    private List<Options> option = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name = "image")
+    private List<String> imgUrl = new ArrayList<>();
+
+
+    private String thumbnail;
 
     @CreatedDate
     @DateTimeFormat(pattern = "yyyy-MM-dd/HH:mm:ss")
     private LocalDateTime createdDate;
 
-
-
-
-
+    @Override
+    public String toString() {
+        return "Product{" +
+                "prodNo=" + prodNo +
+                ", title='" + title + '\'' +
+                ", category='" + category + '\'' +
+                ", content='" + content + '\'' +
+                ", imgUrl=" + imgUrl +
+                ", thumbnail='" + thumbnail + '\'' +
+                ", createdDate=" + createdDate +
+                '}';
+    }
 }

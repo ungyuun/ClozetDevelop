@@ -1,15 +1,23 @@
 package com.clozet.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.clozet.Mapper.ProductMapper;
 import com.clozet.cloud.FileUpload;
-import com.clozet.model.dto.OptionsDto;
+import com.clozet.model.dto.ImageDto;
+import com.clozet.model.dto.OptionDto;
+import com.clozet.model.dto.OptionDto;
 import com.clozet.model.dto.ProductDto;
-import com.clozet.model.entity.Options;
+import com.clozet.model.entity.Option;
 import com.clozet.model.entity.Product;
 import com.clozet.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,21 +44,25 @@ public class ProductController {
 	}
 
 	@PostMapping("/newproduct")
-	public void addProduct(@RequestBody ProductDto productDto) throws Exception {
-		List<OptionsDto> options = productDto.getOptions();
-
+	public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto productDto) throws Exception {
+//		List<OptionDto> option = productDto.getOption();
+		List<String> image = productDto.getImgUrl();
 		Product product = productService.addProduct(productDto);
-//		options.setProduct(product);
-		productService.addOptions(options,product);
-
-//		return
+//		Long parentNo = productService.addOption(option,product);
+		System.out.println(ProductMapper.INSTANCE.toDtoProdNo(product).toString());
+		return ResponseEntity.ok(ProductMapper.INSTANCE.toDtoProdNo(product));
 	}
-//	@GetMapping("/download")
-//	public void download(){
-//		System.out.println("download");
-//		fileUpload.download();
-//	}
-//
+
+
+	@GetMapping("/{prodNo}")
+	public ResponseEntity<Map<String, Object>> getProduct(@PathVariable Long prodNo) throws Exception {
+        System.out.println(prodNo);
+		Map<String, Object> map = new HashMap<>();
+
+		map.put("product",productService.getProduct(prodNo));
+		map.put("option",productService.getOption(productService.getProduct(prodNo)));
+		return new ResponseEntity<>(map, HttpStatus.OK);
+	}
 //	//@RequestMapping("/addProductView.do")
 //	@RequestMapping(value = "addProduct",method = RequestMethod.GET)
 //	public String addProductView() throws Exception{
